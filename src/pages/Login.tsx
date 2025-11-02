@@ -1,11 +1,5 @@
-/**
- * Login Page Component
- * Provides user authentication with email and password
- * Includes form validation, password visibility toggle, and remember me functionality
- */
-
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -14,7 +8,7 @@ import {
   Checkbox,
   FormControlLabel,
   CircularProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Visibility,
   VisibilityOff,
@@ -22,15 +16,16 @@ import {
   Google,
   Brightness4,
   Brightness7,
-} from '@mui/icons-material';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { toast } from 'sonner';
-import '../styles/login.scss';
+} from "@mui/icons-material";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import "../styles/login.scss";
 
 // Email validation regex
-const EMAIL_REGEX = /^(?!\.)(?!.*\.@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_REGEX =
+  /^(?!\.)(?!.*\.@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * Login form validation schema
@@ -40,13 +35,13 @@ const loginSchema = z.object({
   email: z
     .string()
     .trim()
-    .nonempty('Email is required')
-    .regex(EMAIL_REGEX, 'Please enter a valid email address'),
+    .nonempty("Email is required")
+    .regex(EMAIL_REGEX, "Please enter a valid email address"),
   password: z
     .string()
-    .nonempty('Password is required')
-    .min(8, 'Password must be at least 8 characters')
-    .max(15, 'Password must be at most 15 characters'),
+    .nonempty("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .max(15, "Password must be at most 15 characters"),
   rememberMe: z.boolean().optional(),
 });
 
@@ -70,8 +65,8 @@ const Login = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
       rememberMe: false,
     },
   });
@@ -81,7 +76,7 @@ const Login = () => {
    */
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
-    document.body.setAttribute('data-theme', !isDarkMode ? 'dark' : 'light');
+    document.body.setAttribute("data-theme", !isDarkMode ? "dark" : "light");
   };
 
   /**
@@ -92,50 +87,54 @@ const Login = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
-      
+
       // Simulate API call (replace with actual authentication logic)
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+
       // Store remember me preference if needed
       if (data.rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
+        localStorage.setItem("rememberMe", "true");
       }
-      
+
       // Show success message
-      toast.success('Login successful! Welcome back.', {
-        description: 'Redirecting to dashboard...',
+      toast.success("Login successful! Welcome back.", {
+        description: "Redirecting to dashboard...",
       });
-      
+
       // Redirect to home page after successful login
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 1000);
-      
     } catch (error) {
       // Handle login errors
-      console.error('Login error:', error);
-      toast.error('Login failed', {
-        description: 'Invalid email or password. Please try again.',
+      console.error("Login error:", error);
+      toast.error("Login failed", {
+        description: "Invalid email or password. Please try again.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  /**
-   * Handle social authentication
-   * Placeholder for OAuth integration
-   * @param provider - Social authentication provider (google)
-   */
-  const handleSocialLogin = (provider: string) => {
-    toast.info(`${provider} login`, {
-      description: 'Social authentication coming soon!',
-    });
-  };
+    /**
+     * Handle social authentication
+     * Placeholder for OAuth integration
+     * @param provider - Social authentication provider (google)
+     */
+    const handleSocialSignin = (provider: string) => {
+      toast.info(`${provider} signin`, {
+        description: 'Social authentication coming soon!',
+      });
+    };
+  
 
   return (
-    <div className="login-container" data-theme={isDarkMode ? 'dark' : 'light'}>
-      <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+    <div className="login-container" data-theme={isDarkMode ? "dark" : "light"}>
+      <button
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label="Toggle theme"
+      >
         {isDarkMode ? <Brightness7 /> : <Brightness4 />}
       </button>
 
@@ -167,7 +166,7 @@ const Login = () => {
                 helperText={errors.email?.message}
                 autoComplete="email"
                 disabled={isLoading}
-                inputProps={{ 'aria-label': 'Email Address' }}
+                inputProps={{ "aria-label": "Email Address" }}
               />
             )}
           />
@@ -180,7 +179,7 @@ const Login = () => {
               <TextField
                 {...field}
                 label="Password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 variant="outlined"
                 fullWidth
                 className="login-input"
@@ -234,6 +233,7 @@ const Login = () => {
             type="submit"
             variant="contained"
             fullWidth
+           
             className="login-submit-btn"
             disabled={isLoading}
           >
@@ -243,7 +243,7 @@ const Login = () => {
                 Signing in...
               </>
             ) : (
-              'Sign In'
+              "Sign In"
             )}
           </Button>
         </form>
@@ -258,11 +258,18 @@ const Login = () => {
           <Button
             variant="outlined"
             startIcon={<Google />}
-            onClick={() => handleSocialLogin('Google')}
             disabled={isLoading}
+             onClick={() => handleSocialSignin("Google")}
             fullWidth
           >
-            Google
+            {isLoading ? (
+              <>
+                <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                Connecting...
+              </>
+            ) : (
+              "Continue with Google"
+            )}
           </Button>
         </div>
 

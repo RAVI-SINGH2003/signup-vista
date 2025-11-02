@@ -136,7 +136,7 @@ const getPasswordStrength = (password: string, fullName: string): 'weak' | 'medi
   const specialCount = (password.match(/[@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g) || []).length;
   
   // Strong conditions (13-15 chars, >=3 special chars)
-  if (password.length >= 13 && password.length <= 15 && specialCount >= 3) {
+  if (password.length >= 13 && password.length <= 15) {
     return 'strong';
   }
   
