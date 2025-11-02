@@ -1,10 +1,4 @@
-/**
- * Login Page Styles
- * Modern, responsive design with glassmorphism and smooth animations
- */
-
-/* Light theme variables */
-.login-container[data-theme='light'] {
+.signup-container[data-theme='light'] {
   --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --bg-card: rgba(255, 255, 255, 0.95);
   --text-primary: #2d3748;
@@ -16,10 +10,12 @@
   --input-bg: #ffffff;
   --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --button-hover: linear-gradient(135deg, #5568d3 0%, #63408a 100%);
+  --strength-weak: #f56565;
+  --strength-medium: #ed8936;
+  --strength-strong: #48bb78;
 }
 
-/* Dark theme variables */
-.login-container[data-theme='dark'] {
+.signup-container[data-theme='dark'] {
   --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   --bg-card: rgba(26, 32, 46, 0.95);
   --text-primary: #e2e8f0;
@@ -31,10 +27,13 @@
   --input-bg: rgba(45, 55, 72, 0.8);
   --button-bg: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
   --button-hover: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+  --strength-weak: #fc8181;
+  --strength-medium: #f6ad55;
+  --strength-strong: #68d391;
 }
 
 /* Container Styles */
-.login-container {
+.signup-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -89,13 +88,13 @@
 }
 
 /* Card Styles */
-.login-card {
+.signup-card {
   background: var(--bg-card);
   backdrop-filter: blur(20px);
   border-radius: 1.5rem;
   padding: 3rem 2.5rem;
   width: 100%;
-  max-width: 450px;
+  max-width: 500px;
   box-shadow: 
     0 20px 60px var(--shadow-color),
     0 0 0 1px var(--border-color);
@@ -113,11 +112,11 @@
 }
 
 /* Header Styles */
-.login-header {
+.signup-header {
   text-align: center;
   margin-bottom: 2.5rem;
 
-  .login-logo {
+  .signup-logo {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -152,12 +151,12 @@
 }
 
 /* Form Styles */
-.login-form {
+.signup-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 
-  .login-input {
+  .signup-input {
     .MuiOutlinedInput-root {
       background: var(--input-bg);
       border-radius: 0.75rem;
@@ -205,43 +204,111 @@
   }
 }
 
-/* Options Row */
-.login-options {
+/* Password Input Wrapper with Generate Button */
+.password-input-wrapper {
+  position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: -0.5rem 0;
+  gap: 0.75rem;
+  align-items: flex-start;
 
-  .remember-me {
-    .MuiTypography-root {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
+  .signup-input {
+    flex: 1;
+  }
+
+  .generate-password-btn {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--button-bg);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px var(--shadow-color);
+
+    svg {
+      font-size: 1.25rem;
     }
 
-    .MuiCheckbox-root {
-      color: var(--text-secondary);
+    &:hover:not(:disabled) {
+      background: var(--button-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px var(--shadow-color);
 
-      &.Mui-checked {
-        color: var(--text-link);
+      svg {
+        transform: rotate(180deg);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Password Strength Indicator */
+.password-strength {
+  margin-top: 0.75rem;
+
+  .strength-bar {
+    height: 0.5rem;
+    background: var(--border-color);
+    border-radius: 0.25rem;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+
+    .strength-fill {
+      height: 100%;
+      transition: all 0.4s ease;
+      border-radius: 0.25rem;
+
+      &.weak {
+        width: 33%;
+        background: var(--strength-weak);
+      }
+
+      &.medium {
+        width: 66%;
+        background: var(--strength-medium);
+      }
+
+      &.strong {
+        width: 100%;
+        background: var(--strength-strong);
       }
     }
   }
 
-  .forgot-password {
-    color: var(--text-link);
+  .strength-text {
     font-size: 0.875rem;
-    text-decoration: none;
-    transition: color 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 
-    &:hover {
-      color: var(--text-link-hover);
-      text-decoration: underline;
+    &.weak {
+      color: var(--strength-weak);
+    }
+
+    &.medium {
+      color: var(--strength-medium);
+    }
+
+    &.strong {
+      color: var(--strength-strong);
     }
   }
 }
 
 /* Submit Button */
-.login-submit-btn {
+.signup-submit-btn {
   margin-top: 0.5rem;
   padding: 0.875rem;
   background: var(--button-bg) !important;
@@ -265,7 +332,7 @@
 }
 
 /* Divider */
-.login-divider {
+.signup-divider {
   display: flex;
   align-items: center;
   text-align: center;
@@ -293,7 +360,7 @@
 
   button {
     flex: 1;
-    padding: 0.875rem !important;
+    padding: 0.75rem !important;
     border-radius: 0.75rem !important;
     border-color: var(--border-color) !important;
     color: var(--text-primary) !important;
@@ -301,14 +368,6 @@
     font-weight: 500 !important;
     background: var(--input-bg) !important;
     transition: all 0.3s ease !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-
-    svg {
-      font-size: 1.25rem;
-    }
 
     &:hover:not(:disabled) {
       border-color: var(--text-link) !important;
@@ -316,15 +375,11 @@
       transform: translateY(-2px);
       box-shadow: 0 4px 12px var(--shadow-color);
     }
-
-    .MuiCircularProgress-root {
-      margin-right: 0.5rem;
-    }
   }
 }
 
 /* Footer */
-.login-footer {
+.signup-footer {
   margin-top: 2rem;
   text-align: center;
 
@@ -343,6 +398,43 @@
         text-decoration: underline;
       }
     }
+  }
+}
+
+/* Success Animation */
+.success-animation {
+  text-align: center;
+  padding: 3rem 1rem;
+
+  .success-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    animation: successPop 0.6s ease;
+
+    svg {
+      font-size: 5rem;
+      color: var(--strength-strong);
+      filter: drop-shadow(0 4px 12px var(--strength-strong));
+    }
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .MuiCircularProgress-root {
+    color: var(--text-link);
   }
 }
 
@@ -375,6 +467,20 @@
   }
 }
 
+@keyframes successPop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes gradientMove {
   0%, 100% {
     opacity: 1;
@@ -386,20 +492,20 @@
 
 /* Responsive Design */
 @media (max-width: 640px) {
-  .login-container {
+  .signup-container {
     padding: 1rem;
   }
 
-  .login-card {
+  .signup-card {
     padding: 2rem 1.5rem;
   }
 
-  .login-header {
+  .signup-header {
     h1 {
       font-size: 1.75rem;
     }
 
-    .login-logo {
+    .signup-logo {
       width: 4rem;
       height: 4rem;
 
@@ -420,26 +526,41 @@
     }
   }
 
-  .social-buttons {
+  .password-input-wrapper {
     flex-direction: column;
+
+    .generate-password-btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
-  .login-options {
+  .social-buttons {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
   }
 }
 
 @media (max-width: 400px) {
-  .login-card {
+  .signup-card {
     padding: 1.5rem 1rem;
   }
 
-  .login-header {
+  .signup-header {
     margin-bottom: 2rem;
 
     h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .success-animation {
+    padding: 2rem 0.5rem;
+
+    .success-icon svg {
+      font-size: 4rem;
+    }
+
+    h2 {
       font-size: 1.5rem;
     }
   }

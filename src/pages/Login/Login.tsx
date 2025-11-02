@@ -20,17 +20,11 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
-import "../styles/login.scss";
+import "./Login.scss";
+import { EMAIL_REGEX } from "@/constants/common-constants";
 
-// Email validation regex
-const EMAIL_REGEX =
-  /^(?!\.)(?!.*\.@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+// Login form validation schema
 
-/**
- * Login form validation schema
- * Defines rules for email and password fields
- */
 const loginSchema = z.object({
   email: z
     .string()
@@ -47,17 +41,12 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-/**
- * Login Component
- * Handles user authentication with validation and error handling
- */
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Initialize form with react-hook-form and zod validation
   const {
     control,
     handleSubmit,
@@ -71,62 +60,33 @@ const Login = () => {
     },
   });
 
-  /**
-   * Toggle theme between light and dark mode
-   */
+  // Toggle theme between light and dark mode
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
     document.body.setAttribute("data-theme", !isDarkMode ? "dark" : "light");
   };
 
-  /**
-   * Handle form submission
-   * Validates credentials and performs login
-   * @param data - Form data containing email, password, and remember me preference
-   */
+  // Validates credentials and handle form submission
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
 
-      // Simulate API call (replace with actual authentication logic)
+      // Simulate API call (replace with actual login logic)
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Store remember me preference if needed
       if (data.rememberMe) {
         localStorage.setItem("rememberMe", "true");
       }
 
-      // Show success message
-      toast.success("Login successful! Welcome back.", {
-        description: "Redirecting to dashboard...",
-      });
-
-      // Redirect to home page after successful login
       setTimeout(() => {
         navigate("/");
       }, 1000);
     } catch (error) {
-      // Handle login errors
       console.error("Login error:", error);
-      toast.error("Login failed", {
-        description: "Invalid email or password. Please try again.",
-      });
     } finally {
       setIsLoading(false);
     }
   };
-
-    /**
-     * Handle social authentication
-     * Placeholder for OAuth integration
-     * @param provider - Social authentication provider (google)
-     */
-    const handleSocialSignin = (provider: string) => {
-      toast.info(`${provider} signin`, {
-        description: 'Social authentication coming soon!',
-      });
-    };
-  
 
   return (
     <div className="login-container" data-theme={isDarkMode ? "dark" : "light"}>
@@ -139,7 +99,6 @@ const Login = () => {
       </button>
 
       <div className="login-card">
-        {/* Header Section */}
         <div className="login-header">
           <div className="login-logo">
             <LockPerson />
@@ -148,9 +107,7 @@ const Login = () => {
           <p>Sign in to continue to your account</p>
         </div>
 
-        {/* Login Form */}
         <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
-          {/* Email Input */}
           <Controller
             name="email"
             control={control}
@@ -171,7 +128,6 @@ const Login = () => {
             )}
           />
 
-          {/* Password Input with Visibility Toggle */}
           <Controller
             name="password"
             control={control}
@@ -204,7 +160,6 @@ const Login = () => {
             )}
           />
 
-          {/* Remember Me and Forgot Password */}
           <div className="login-options">
             <Controller
               name="rememberMe"
@@ -228,12 +183,10 @@ const Login = () => {
             </a>
           </div>
 
-          {/* Submit Button */}
           <Button
             type="submit"
             variant="contained"
             fullWidth
-           
             className="login-submit-btn"
             disabled={isLoading}
           >
@@ -248,18 +201,15 @@ const Login = () => {
           </Button>
         </form>
 
-        {/* Divider */}
         <div className="login-divider">
           <span>Or continue with</span>
         </div>
 
-        {/* Social Login Buttons */}
         <div className="social-buttons">
           <Button
             variant="outlined"
             startIcon={<Google />}
             disabled={isLoading}
-             onClick={() => handleSocialSignin("Google")}
             fullWidth
           >
             {isLoading ? (
@@ -273,7 +223,6 @@ const Login = () => {
           </Button>
         </div>
 
-        {/* Footer - Sign Up Link */}
         <div className="login-footer">
           <p>
             Don't have an account? <Link to="/signup">Sign up</Link>

@@ -3,9 +3,9 @@ import { Button } from "@mui/material";
 import { Login, PersonAdd } from "@mui/icons-material";
 import { useState } from "react";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
-import "../styles/index.scss";
+import "./Home.scss";
 
-const Index = () => {
+const Home = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
 
@@ -122,4 +122,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Home;
