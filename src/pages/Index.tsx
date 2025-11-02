@@ -1,8 +1,3 @@
-/**
- * Home Page Component
- * Landing page with navigation to authentication
- */
-
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
 import { Login, PersonAdd } from '@mui/icons-material';
