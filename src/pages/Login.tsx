@@ -20,13 +20,17 @@ import {
   VisibilityOff,
   LockPerson,
   Google,
-  GitHub,
+  Brightness4,
+  Brightness7,
 } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import '../styles/auth.scss';
+import '../styles/login.scss';
+
+// Email validation regex
+const EMAIL_REGEX = /^(?!\.)(?!.*\.@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * Login form validation schema
@@ -37,13 +41,12 @@ const loginSchema = z.object({
     .string()
     .trim()
     .nonempty('Email is required')
-    .email('Please enter a valid email address')
-    .max(255, 'Email must be less than 255 characters'),
+    .regex(EMAIL_REGEX, 'Please enter a valid email address'),
   password: z
     .string()
     .nonempty('Password is required')
-    .min(6, 'Password must be at least 6 characters')
-    .max(100, 'Password must be less than 100 characters'),
+    .min(8, 'Password must be at least 8 characters')
+    .max(15, 'Password must be at most 15 characters'),
   rememberMe: z.boolean().optional(),
 });
 
@@ -57,6 +60,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Initialize form with react-hook-form and zod validation
   const {
@@ -71,6 +75,14 @@ const Login = () => {
       rememberMe: false,
     },
   });
+
+  /**
+   * Toggle theme between light and dark mode
+   */
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    document.body.setAttribute('data-theme', !isDarkMode ? 'dark' : 'light');
+  };
 
   /**
    * Handle form submission
@@ -113,7 +125,7 @@ const Login = () => {
   /**
    * Handle social authentication
    * Placeholder for OAuth integration
-   * @param provider - Social authentication provider (google, github)
+   * @param provider - Social authentication provider (google)
    */
   const handleSocialLogin = (provider: string) => {
     toast.info(`${provider} login`, {
@@ -122,11 +134,15 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="login-container" data-theme={isDarkMode ? 'dark' : 'light'}>
+      <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+        {isDarkMode ? <Brightness7 /> : <Brightness4 />}
+      </button>
+
+      <div className="login-card">
         {/* Header Section */}
-        <div className="auth-header">
-          <div className="auth-logo">
+        <div className="login-header">
+          <div className="login-logo">
             <LockPerson />
           </div>
           <h1>Welcome Back</h1>
@@ -134,7 +150,7 @@ const Login = () => {
         </div>
 
         {/* Login Form */}
-        <form className="auth-form" onSubmit={handleSubmit(onSubmit)}>
+        <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
           {/* Email Input */}
           <Controller
             name="email"
@@ -143,14 +159,15 @@ const Login = () => {
               <TextField
                 {...field}
                 label="Email Address"
-                type="email"
+                type="text"
                 variant="outlined"
                 fullWidth
-                className="auth-input"
+                className="login-input"
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 autoComplete="email"
                 disabled={isLoading}
+                inputProps={{ 'aria-label': 'Email Address' }}
               />
             )}
           />
@@ -166,7 +183,7 @@ const Login = () => {
                 type={showPassword ? 'text' : 'password'}
                 variant="outlined"
                 fullWidth
-                className="auth-input"
+                className="login-input"
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 autoComplete="current-password"
@@ -189,7 +206,7 @@ const Login = () => {
           />
 
           {/* Remember Me and Forgot Password */}
-          <div className="auth-options">
+          <div className="login-options">
             <Controller
               name="rememberMe"
               control={control}
@@ -217,7 +234,7 @@ const Login = () => {
             type="submit"
             variant="contained"
             fullWidth
-            className="auth-submit-btn"
+            className="login-submit-btn"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -232,7 +249,7 @@ const Login = () => {
         </form>
 
         {/* Divider */}
-        <div className="auth-divider">
+        <div className="login-divider">
           <span>Or continue with</span>
         </div>
 
@@ -243,21 +260,14 @@ const Login = () => {
             startIcon={<Google />}
             onClick={() => handleSocialLogin('Google')}
             disabled={isLoading}
+            fullWidth
           >
             Google
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<GitHub />}
-            onClick={() => handleSocialLogin('GitHub')}
-            disabled={isLoading}
-          >
-            GitHub
           </Button>
         </div>
 
         {/* Footer - Sign Up Link */}
-        <div className="auth-footer">
+        <div className="login-footer">
           <p>
             Don't have an account? <Link to="/signup">Sign up</Link>
           </p>

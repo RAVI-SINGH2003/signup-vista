@@ -18,14 +18,19 @@ import {
   VisibilityOff,
   PersonAdd,
   Google,
-  GitHub,
   CheckCircle,
+  Refresh,
+  Brightness4,
+  Brightness7,
 } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import '../styles/auth.scss';
+import '../styles/signup.scss';
+
+// Email validation regex
+const EMAIL_REGEX = /^(?!\.)(?!.*\.@)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * Signup form validation schema
@@ -38,22 +43,23 @@ const signupSchema = z
       .trim()
       .nonempty('Full name is required')
       .min(2, 'Name must be at least 2 characters')
-      .max(100, 'Name must be less than 100 characters')
+      .max(30, 'Name must be less than 30 characters')
       .regex(/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces'),
     email: z
       .string()
       .trim()
       .nonempty('Email is required')
-      .email('Please enter a valid email address')
-      .max(255, 'Email must be less than 255 characters'),
+      .regex(EMAIL_REGEX, 'Please enter a valid email address'),
     password: z
       .string()
       .nonempty('Password is required')
       .min(8, 'Password must be at least 8 characters')
-      .max(100, 'Password must be less than 100 characters')
+      .max(15, 'Password must be at most 15 characters')
       .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/[0-9]/, 'Password must contain at least one number'),
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(/[@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, 'Password must contain at least one special character')
+      .refine((val) => !/\s/.test(val), 'Password cannot contain spaces'),
     confirmPassword: z.string().nonempty('Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -64,28 +70,95 @@ const signupSchema = z
 type SignupFormData = z.infer<typeof signupSchema>;
 
 /**
- * Calculate password strength
+ * Generate a random password that meets all validation requirements
+ * @returns A secure random password string
+ */
+const generateRandomPassword = (): string => {
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const digits = '0123456789';
+  const special = '@#$%^&*()_+-=[]{}';
+  
+  const length = 12; // Medium strength default
+  let password = '';
+  
+  // Ensure at least one of each required character type
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+  password += special[Math.floor(Math.random() * special.length)];
+  
+  // Fill the rest randomly
+  const allChars = uppercase + lowercase + digits + special;
+  for (let i = password.length; i < length; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+};
+
+/**
+ * Check if password contains repeated patterns
+ * @param password - Password string to check
+ * @returns True if repeated patterns found
+ */
+const hasRepeatedPatterns = (password: string): boolean => {
+  // Check for 3+ consecutive repeated characters
+  if (/(.)\1{2,}/.test(password)) return true;
+  
+  // Check for repeated sequences of 2+ characters
+  for (let i = 0; i < password.length - 3; i++) {
+    const pattern = password.substring(i, i + 2);
+    if (password.indexOf(pattern, i + 2) !== -1) return true;
+  }
+  
+  return false;
+};
+
+/**
+ * Calculate password strength based on specific criteria
  * @param password - Password string to evaluate
+ * @param fullName - User's full name to check against
  * @returns Strength level: 'weak', 'medium', or 'strong'
  */
-const getPasswordStrength = (password: string): 'weak' | 'medium' | 'strong' => {
+const getPasswordStrength = (password: string, fullName: string): 'weak' | 'medium' | 'strong' => {
   if (!password) return 'weak';
   
-  let strength = 0;
+  // Weak conditions
+  if (hasRepeatedPatterns(password)) return 'weak';
+  if (fullName && password.toLowerCase().includes(fullName.toLowerCase().replace(/\s/g, ''))) {
+    return 'weak';
+  }
   
-  // Length check
-  if (password.length >= 8) strength++;
-  if (password.length >= 12) strength++;
+  // Count digits and special characters
+  const digitCount = (password.match(/[0-9]/g) || []).length;
+  const specialCount = (password.match(/[@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g) || []).length;
   
-  // Character variety checks
-  if (/[a-z]/.test(password)) strength++;
-  if (/[A-Z]/.test(password)) strength++;
-  if (/[0-9]/.test(password)) strength++;
-  if (/[^a-zA-Z0-9]/.test(password)) strength++;
+  // Strong conditions (13-15 chars, >=3 special chars)
+  if (password.length >= 13 && password.length <= 15 && specialCount >= 3) {
+    return 'strong';
+  }
   
-  if (strength <= 2) return 'weak';
-  if (strength <= 4) return 'medium';
-  return 'strong';
+  // Medium conditions (9-12 chars, <=3 digits, <=2 special chars)
+  if (password.length >= 9 && password.length <= 12 && digitCount <= 3 && specialCount <= 2) {
+    return 'medium';
+  }
+  
+  // If it passes basic validation but doesn't meet medium/strong criteria
+  if (password.length >= 8 && password.length <= 15) {
+    // Check if it has basic requirements
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /[0-9]/.test(password);
+    const hasSpecial = /[@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    
+    if (hasUpper && hasLower && hasDigit && hasSpecial) {
+      return 'medium';
+    }
+  }
+  
+  return 'weak';
 };
 
 /**
@@ -99,12 +172,14 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Initialize form with react-hook-form and zod validation
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -116,17 +191,38 @@ const Signup = () => {
     },
   });
 
-  // Watch password field for strength calculation
+  // Watch password and fullName fields for strength calculation
   const watchPassword = watch('password');
+  const watchFullName = watch('fullName');
 
   /**
-   * Update password strength indicator on password change
+   * Toggle theme between light and dark mode
+   */
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+    document.body.setAttribute('data-theme', !isDarkMode ? 'dark' : 'light');
+  };
+
+  /**
+   * Update password strength indicator on password or name change
    */
   useEffect(() => {
     if (watchPassword) {
-      setPasswordStrength(getPasswordStrength(watchPassword));
+      setPasswordStrength(getPasswordStrength(watchPassword, watchFullName));
     }
-  }, [watchPassword]);
+  }, [watchPassword, watchFullName]);
+
+  /**
+   * Generate and set a random password suggestion
+   */
+  const handleGeneratePassword = () => {
+    const newPassword = generateRandomPassword();
+    setValue('password', newPassword);
+    setValue('confirmPassword', newPassword);
+    toast.success('Password generated!', {
+      description: 'You can modify it or use it as is.',
+    });
+  };
 
   /**
    * Handle form submission
@@ -166,7 +262,7 @@ const Signup = () => {
   /**
    * Handle social authentication
    * Placeholder for OAuth integration
-   * @param provider - Social authentication provider (google, github)
+   * @param provider - Social authentication provider (google)
    */
   const handleSocialSignup = (provider: string) => {
     toast.info(`${provider} signup`, {
@@ -177,8 +273,8 @@ const Signup = () => {
   // Show success animation if registration completed
   if (isSuccess) {
     return (
-      <div className="auth-container">
-        <div className="auth-card">
+      <div className="signup-container" data-theme={isDarkMode ? 'dark' : 'light'}>
+        <div className="signup-card">
           <div className="success-animation">
             <div className="success-icon">
               <CheckCircle />
@@ -193,11 +289,15 @@ const Signup = () => {
   }
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
+    <div className="signup-container" data-theme={isDarkMode ? 'dark' : 'light'}>
+      <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+        {isDarkMode ? <Brightness7 /> : <Brightness4 />}
+      </button>
+
+      <div className="signup-card">
         {/* Header Section */}
-        <div className="auth-header">
-          <div className="auth-logo">
+        <div className="signup-header">
+          <div className="signup-logo">
             <PersonAdd />
           </div>
           <h1>Create Account</h1>
@@ -205,7 +305,7 @@ const Signup = () => {
         </div>
 
         {/* Signup Form */}
-        <form className="auth-form" onSubmit={handleSubmit(onSubmit)}>
+        <form className="signup-form" onSubmit={handleSubmit(onSubmit)}>
           {/* Full Name Input */}
           <Controller
             name="fullName"
@@ -217,7 +317,7 @@ const Signup = () => {
                 type="text"
                 variant="outlined"
                 fullWidth
-                className="auth-input"
+                className="signup-input"
                 error={!!errors.fullName}
                 helperText={errors.fullName?.message}
                 autoComplete="name"
@@ -234,10 +334,10 @@ const Signup = () => {
               <TextField
                 {...field}
                 label="Email Address"
-                type="email"
+                type="text"
                 variant="outlined"
                 fullWidth
-                className="auth-input"
+                className="signup-input"
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 autoComplete="email"
@@ -248,37 +348,48 @@ const Signup = () => {
 
           {/* Password Input with Strength Indicator */}
           <div>
-            <Controller
-              name="password"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  variant="outlined"
-                  fullWidth
-                  className="auth-input"
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  autoComplete="new-password"
-                  disabled={isLoading}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-            />
+            <div className="password-input-wrapper">
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Password"
+                    type={showPassword ? 'text' : 'password'}
+                    variant="outlined"
+                    fullWidth
+                    className="signup-input"
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    autoComplete="new-password"
+                    disabled={isLoading}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
+              />
+              <button
+                type="button"
+                className="generate-password-btn"
+                onClick={handleGeneratePassword}
+                disabled={isLoading}
+                aria-label="Generate random password"
+              >
+                <Refresh /> Generate
+              </button>
+            </div>
             
             {/* Password Strength Indicator */}
             {watchPassword && (
@@ -304,7 +415,7 @@ const Signup = () => {
                 type={showConfirmPassword ? 'text' : 'password'}
                 variant="outlined"
                 fullWidth
-                className="auth-input"
+                className="signup-input"
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword?.message}
                 autoComplete="new-password"
@@ -331,7 +442,7 @@ const Signup = () => {
             type="submit"
             variant="contained"
             fullWidth
-            className="auth-submit-btn"
+            className="signup-submit-btn"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -346,7 +457,7 @@ const Signup = () => {
         </form>
 
         {/* Divider */}
-        <div className="auth-divider">
+        <div className="signup-divider">
           <span>Or sign up with</span>
         </div>
 
@@ -357,21 +468,14 @@ const Signup = () => {
             startIcon={<Google />}
             onClick={() => handleSocialSignup('Google')}
             disabled={isLoading}
+            fullWidth
           >
             Google
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<GitHub />}
-            onClick={() => handleSocialSignup('GitHub')}
-            disabled={isLoading}
-          >
-            GitHub
           </Button>
         </div>
 
         {/* Footer - Login Link */}
-        <div className="auth-footer">
+        <div className="signup-footer">
           <p>
             Already have an account? <Link to="/login">Sign in</Link>
           </p>
