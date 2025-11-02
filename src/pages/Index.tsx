@@ -1,11 +1,91 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+/**
+ * Home Page Component
+ * Landing page with navigation to authentication
+ */
+
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
+import { Login, PersonAdd } from '@mui/icons-material';
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="flex min-h-screen items-center justify-center" style={{ background: 'var(--gradient-subtle)' }}>
+      <div className="text-center max-w-2xl px-6">
+        <div 
+          style={{
+            width: '100px',
+            height: '100px',
+            margin: '0 auto 2rem',
+            background: 'var(--gradient-primary)',
+            borderRadius: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 'var(--shadow-primary)',
+          }}
+        >
+          <Login style={{ fontSize: '48px', color: 'white' }} />
+        </div>
+        
+        <h1 className="mb-4 text-5xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>
+          Welcome to AuthFlow
+        </h1>
+        <p className="text-xl mb-8" style={{ color: 'hsl(var(--muted-foreground))' }}>
+          A modern authentication system with beautiful UI and comprehensive validation
+        </p>
+        
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<Login />}
+            onClick={() => navigate('/login')}
+            sx={{
+              background: 'var(--gradient-primary)',
+              padding: '0.875rem 2rem',
+              fontSize: '1rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              borderRadius: 'var(--radius)',
+              boxShadow: 'var(--shadow-primary)',
+              transition: 'var(--transition-smooth)',
+              '&:hover': {
+                boxShadow: '0 12px 32px rgba(23, 178, 178, 0.35)',
+                transform: 'translateY(-2px)',
+              },
+            }}
+          >
+            Sign In
+          </Button>
+          
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<PersonAdd />}
+            onClick={() => navigate('/signup')}
+            sx={{
+              padding: '0.875rem 2rem',
+              fontSize: '1rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              borderRadius: 'var(--radius)',
+              borderWidth: '2px',
+              borderColor: 'hsl(var(--primary))',
+              color: 'hsl(var(--primary))',
+              transition: 'var(--transition-smooth)',
+              '&:hover': {
+                borderWidth: '2px',
+                borderColor: 'hsl(var(--primary))',
+                background: 'hsla(var(--primary), 0.05)',
+                transform: 'translateY(-2px)',
+              },
+            }}
+          >
+            Create Account
+          </Button>
+        </div>
       </div>
     </div>
   );
